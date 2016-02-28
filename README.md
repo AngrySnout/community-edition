@@ -1,3 +1,13 @@
+This is a fork of ComEd, which has the following changes:
+
+- Client-side are stored in their own directory, and can be played back using the command demo_ (with autocomplete).
+- Client-side demo names are more descriptive.
+- Two command, demotime and demoskip, for navigating demos.
+- cdemoauto also accepts a value of 2, which saves all demos without displaying a dialog.
+- Other bug fixes.
+
+---
+
 Sauerbraten Community Edition
 ===
 
