@@ -1,3 +1,4 @@
+#include "game.h"
 #include "cdemo.h"
 
 namespace game{
@@ -45,6 +46,8 @@ static void writedemo(int chan, void* data, int len)
        demostream->write(data, len);
 }
 
+XIDENT(IDF_SWLACC, SVARP, cdemodir, "demos");
+
 void setup(const char* name_)
 {
        using game::gamemode;
@@ -54,13 +57,23 @@ void setup(const char* name_)
        if(!m_mp(gamemode) || game::demoplayback || !game::connected) return;
        if(demostream) stop();
 
+	   if (cdemodir[0])
+	   {
+			const char *sdir = findfile(cdemodir, "w");
+			defformatstring(dbuf)("%s/", sdir);
+			if(!fileexists(dbuf, "w"))
+			{
+				createdir(dbuf);
+			}
+	   }
+
        string defname={'\0'};
        game::concatgamedesc(defname);
-       formatstring(name)("%s.dmo", name_ && name_[0] ? name_ : defname);
+       formatstring(name)("%s%s%s.dmo", cdemodir[0]? cdemodir: "", cdemodir[0]? "/": "", name_ && name_[0] ? name_ : defname);
        demostream = opengzfile(name, "w+b");
        if(!demostream) return;
 
-       starttime = totalmillis;
+       starttime = lastmillis;
        demoheader hdr;
        memcpy(hdr.magic, DEMO_MAGIC, sizeof(hdr.magic));
        hdr.version = DEMO_VERSION;
@@ -235,6 +248,7 @@ void sayteam(const char* msg)
 {
        if(!demostream) return;
        p.len = 0;
+	   putint(p, N_SAYTEAM);
        putint(p, game::player1->clientnum);
        sendstring(msg, p);
        packet(1, p);
@@ -282,14 +296,15 @@ void stop()
     if(!demostream) return;
     DELETEP(demostream);
     copystring(curname, name);
-    if(cdemoauto) showgui("keepdemogui");
+    if(cdemoauto == 1) showgui("keepdemogui");
     else conoutf("\f0recorded client demo (%s)", name);
 }
 
-XIDENT(IDF_SWLACC, VARP, cdemoauto, 0, 0, 1);
+XIDENT(IDF_SWLACC, VARP, cdemoauto, 0, 0, 2);
 COMMANDN(cdemostart, setup, "s");
 COMMANDN(cdemostop, stop, "");
 ICOMMAND(say_nocdemo, "s", (char* s), skiptextonce = 1; game::toserver(s); );
+XIDENT(IDF_SWLACC, VARP, cdemoteamchat, 0, 1, 1);
 
 void keepdemo(int *keep)
 {

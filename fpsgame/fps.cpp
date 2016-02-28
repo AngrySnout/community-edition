@@ -1237,29 +1237,37 @@ namespace game
 
     void concatgamedesc(char* name, size_t maxlen)
     {
-       string buff;
-               time_t rawtime;
-               tm* timeinfo;
-               time(&rawtime);
-               timeinfo = localtime(&rawtime);
-               strftime(buff, sizeof(buff), "%Y-%m-%d-%H-%M-%S__", timeinfo);
-               concatstring(name, buff, maxlen);
+		string buff;
+		time_t rawtime;
+		tm* timeinfo;
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		strftime(buff, sizeof(buff), "%Y-%m-%d-%H-%M-%S__", timeinfo);
+		concatstring(name, buff, maxlen);
 
-       if(!remote) concatstring(name, "local", maxlen);
-       else{
-               if(servinfo[0]){
-                       copystring(buff, servinfo);
-                       filtertext(buff, buff);
-                       char* ch=buff;
-                       while((ch=strpbrk(ch, " /\\:?<>\"|*"))) *ch='_';        //windows is the pickiest, but apply to OSX and Linux f
-                       concatstring(name, buff, maxlen);
-                       concatstring(name, "__", maxlen);
-               }
-               enet_address_get_host_ip(connectedpeer(), buff, sizeof(buff));
-               concatstring(name, buff, maxlen);
-               formatstring(buff)("_%d", connectedpeer()->port);
-               concatstring(name, buff, maxlen);
-       }
+		formatstring(buff)("%s__%s__", server::modename(gamemode), getclientmap());
+		char* ch=buff;
+		while((ch=strpbrk(ch, " /\\:?<>\"|*"))) *ch='_';
+		concatstring(name, buff, maxlen);
+
+		if(!remote) concatstring(name, "local", maxlen);
+		else
+		{
+			if(servinfo[0]){
+				copystring(buff, servinfo);
+				filtertext(buff, buff);
+				char* ch=buff;
+				while((ch=strpbrk(ch, " /\\:?<>\"|*"))) *ch='_';        //windows is the pickiest, but apply to OSX and Linux f
+				concatstring(name, buff, maxlen);
+			}
+			else
+			{
+				enet_address_get_host_ip(connectedpeer(), buff, sizeof(buff));
+				concatstring(name, buff, maxlen);
+				formatstring(buff)("_%d", connectedpeer()->port);
+				concatstring(name, buff, maxlen);
+			}
+		}
     }
 
 }
