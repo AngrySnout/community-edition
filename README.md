@@ -2,8 +2,9 @@ This is a fork of ComEd, which has the following changes:
 
 - Client-side are stored in their own directory, and can be played back using the command demo_ (with autocomplete).
 - Client-side demo names are more descriptive.
-- Two command, demotime and demoskip, for navigating demos.
+- Two commands, demotime and demoskip, for navigating demos.
 - cdemoauto also accepts a value of 2, which saves all demos without displaying a dialog.
+- Added missing clientnum in N\_PAUSEGAME inside N\_WELCOME message when recording a client side demo.
 - Other bug fixes.
 
 ---
